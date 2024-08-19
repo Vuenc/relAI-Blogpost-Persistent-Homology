@@ -3,7 +3,6 @@
     <div style="display: flex; flex-direction:column; margin: auto">
         <canvas id="canvas1" width="800px" height="500px"></canvas>
         <div style="display: flex; flex-direction: column; margin-top:20px">
-            <label for="threshold" style="width: 100%; align-items: top; display: flex; flex-direction: row; margin-bottom: 10px;">Threshold: <input id="threshold" style="width: 100%; margin-left: 10px;" type="range" min="0" max="1.001" step="0.001" value="0.5" label="Threshold"></label>
             <div style="width: auto; align-items: top; display: flex; flex-direction: row; justify-content: space-around;">
                 <span style="width: auto; align-items: top; display: flex; flex-direction: row;">
                     <label for="rgb" style="white-space: nowrap;"><input type="radio" autocomplete="off" checked="true" style="vertical-align: baseline" id="rgb" name="Binarization" value="Color"> Color</label>
@@ -72,12 +71,13 @@ axisTransformationPieces = null;
 // ];
 let currentX = 1.0;
 let canvas;
-let thresholdSlider;
+let sliderValue = 0.5;
 let binarizationType = "Color";
 let intensityHistogram;
 let holeHistogram;
 let intensityHistogramMax;
 let holeHistogramMax;
+let isDragging = false;
 // document.addEventListener("mousemove", e => {
 //     if (!canvas) return;
 //     currentX = Math.max(0.001, Math.min(1.0001, Math.max(0, e.clientX/canvas.width)));
@@ -87,38 +87,61 @@ let holeHistogramMax;
 //     requestAnimationFrame(animate);
 // });
 function updateThreshold() {
-    if (!axisTransformationPieces || !thresholdSlider) {
+    if (!axisTransformationPieces) {
         setTimeout(updateThreshold, 100);
         return;
     }
-    let t = piecewiseLinearFunction(thresholdSlider.value, axisTransformationPieces)
+    let t = piecewiseLinearFunction(sliderValue, axisTransformationPieces)
     threshold = Math.max(0, Math.min(255, t*255));
     requestAnimationFrame(animate);
 }
 
 document.addEventListener("DOMContentLoaded", ()  => {
     canvas = document.getElementById("canvas1");
-    canvas.onclick = () => {
-        currentX = 0;
-        f = () => {
-        if (!canvas) return;
-        currentX += 0.005;
-        // let t = .0 + (1/(1 + Math.E ** (-5 * (x - 0.5)))) * 0.76;
-        t = piecewiseLinearFunction(currentX, axisTransformationPieces)
-        threshold = Math.max(0, Math.min(255, t*255));
-        requestAnimationFrame(animate);
-        setTimeout(f, 20);
-        }
-        setTimeout(f, 3100);
-    };
-    thresholdSlider = document.getElementById("threshold");
-
-    thresholdSlider.oninput = updateThreshold;
-    thresholdSlider.value = 0.5;
+    // canvas.onclick = () => {
+    //     currentX = 0;
+    //     f = () => {
+    //     if (!canvas) return;
+    //     currentX += 0.005;
+    //     // let t = .0 + (1/(1 + Math.E ** (-5 * (x - 0.5)))) * 0.76;
+    //     t = piecewiseLinearFunction(currentX, axisTransformationPieces)
+    //     threshold = Math.max(0, Math.min(255, t*255));
+    //     requestAnimationFrame(animate);
+    //     setTimeout(f, 20);
+    //     }
+    //     setTimeout(f, 3100);
+    // };
     document.getElementById("rgb").onchange = document.getElementById("grayscale").onchange = document.getElementById("binary").onchange = (e) => {
         binarizationType = e.originalTarget.value;
         requestAnimationFrame(animate);
     }
+    document.addEventListener("mousedown",  () => {
+        isDragging = true;
+    });
+    document.addEventListener("mouseup",  () => {
+        isDragging = false;
+    });
+    document.addEventListener("touchstart",  () => {
+        isDragging = true;
+    });
+    document.addEventListener("touchend",  () => {
+        isDragging = false;
+    });
+    
+    document.addEventListener("mousemove",  e => {
+        if (isDragging) {
+            rect = canvas.getBoundingClientRect();
+            sliderValue = (e.clientX - rect.left) / canvas.width;
+            updateThreshold();
+        }
+    });
+    document.addEventListener("touchmove",  e => {
+        if (isDragging) {
+            rect = canvas.getBoundingClientRect();
+            sliderValue = (e.touches[0].clientX - rect.left) / canvas.width;
+            updateThreshold();
+        }
+    });
 
 
     let resolutionPlusButton = document.getElementById("resolutionPlus");
@@ -133,6 +156,7 @@ document.addEventListener("DOMContentLoaded", ()  => {
     }
     resolutionMinusButton.onclick = () => changeResolution(Math.max(currentResolutionIndex-1, 0));
     resolutionPlusButton.onclick = () => changeResolution(Math.min(currentResolutionIndex+1, RESOLUTIONS.length - 1));
+
 
     // requestAnimationFrame(animate);
 });
