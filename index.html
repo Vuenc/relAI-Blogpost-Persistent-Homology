@@ -137,17 +137,15 @@ function updateThreshold() {
 document.addEventListener("DOMContentLoaded", ()  => {
     canvas = document.getElementById("canvas1");
     // canvas.onclick = () => {
-    //     currentX = 0;
+    //     sliderValue = 0;
+    //     updateThreshold();
     //     f = () => {
-    //     if (!canvas) return;
-    //     currentX += 0.005;
-    //     // let t = .0 + (1/(1 + Math.E ** (-5 * (x - 0.5)))) * 0.76;
-    //     t = piecewiseLinearFunction(currentX, axisTransformationPieces)
-    //     threshold = Math.max(0, Math.min(255, t*255));
+    //     sliderValue = Math.min(sliderValue + 0.0015, 1.001);
+    //     updateThreshold();
     //     requestAnimationFrame(animate);
     //     setTimeout(f, 20);
     //     }
-    //     setTimeout(f, 3100);
+    //     setTimeout(f, 4000);
     // };
     document.getElementById("rgb").onchange = document.getElementById("binary").onchange = e => {
         binarizationType = e.originalTarget.value;
