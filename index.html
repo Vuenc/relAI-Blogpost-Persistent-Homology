@@ -323,17 +323,31 @@ function animate() {
     const [HISTOGRAM_AREA_WIDTH, HISTOGRAM_AREA_HEIGHT] = [800, 100];
     const CANVAS_HEIGHT = 500;
     // Intensity histogram
+    // ctx.beginPath();
+    // let histogramTransform = (v) => Math.log(v/1+1);
+    // let histogramScaleX = HISTOGRAM_AREA_WIDTH / 256;
+    // let histogramScaleY = HISTOGRAM_AREA_HEIGHT / histogramTransform(intensityHistogramMax);
+    // ctx.strokeStyle = "#000000"
+    // ctx.lineWidth = 0.5;
+    // for (let i = 0; i < 255; i++) {
+    //     let x = inversePiecewiseLinearFunction(i/255, axisTransformationPieces) * 255;
+    //     ctx.moveTo(histogramScaleX * x, CANVAS_HEIGHT - histogramTransform(intensityHistogram[i]) * histogramScaleY);
+    //     x = inversePiecewiseLinearFunction((i+1)/255, axisTransformationPieces) * 255;
+    //     ctx.lineTo(histogramScaleX * x, CANVAS_HEIGHT - histogramTransform(intensityHistogram[i+1]) * histogramScaleY);
+    // }
+    // ctx.stroke();
+    // Threshold function
     ctx.beginPath();
-    let histogramTransform = (v) => Math.log(v+1);
+    let histogramTransform = (v) => Math.log(v/1+1);
     let histogramScaleX = HISTOGRAM_AREA_WIDTH / 256;
-    let histogramScaleY = HISTOGRAM_AREA_HEIGHT / histogramTransform(intensityHistogramMax);
+    let histogramScaleY = HISTOGRAM_AREA_HEIGHT / 255;
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 0.5;
     for (let i = 0; i < 255; i++) {
         let x = inversePiecewiseLinearFunction(i/255, axisTransformationPieces) * 255;
-        ctx.moveTo(histogramScaleX * x, CANVAS_HEIGHT - histogramTransform(intensityHistogram[i]) * histogramScaleY);
+        ctx.moveTo(histogramScaleX * x, CANVAS_HEIGHT - i * histogramScaleY);
         x = inversePiecewiseLinearFunction((i+1)/255, axisTransformationPieces) * 255;
-        ctx.lineTo(histogramScaleX * x, CANVAS_HEIGHT - histogramTransform(intensityHistogram[i+1]) * histogramScaleY);
+        ctx.lineTo(histogramScaleX * x, CANVAS_HEIGHT - (i+1) * histogramScaleY);
     }
     ctx.stroke();
     // Cycles histogram
@@ -361,9 +375,9 @@ function animate() {
     ctx.lineTo(histogramScaleX * x, CANVAS_HEIGHT - HISTOGRAM_AREA_HEIGHT - 30);
     ctx.stroke();
     ctx.font = "bold 12px Arial";
-    ctx.fiilStyle = "#000000";
+    ctx.fillStyle = "#000000";
     ctx.fillText("Threshold: " + Math.floor(threshold), histogramScaleX * x + 5, CANVAS_HEIGHT - HISTOGRAM_AREA_HEIGHT - 20);
-    ctx.fiilStyle = "#FF0000";
+    ctx.fillStyle = "#FF0000";
     ctx.fillText("#Holes: " + numHoles, histogramScaleX * x + 5, CANVAS_HEIGHT - HISTOGRAM_AREA_HEIGHT - 7);
 }
 </script>
