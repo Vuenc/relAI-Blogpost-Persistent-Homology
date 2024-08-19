@@ -56,18 +56,20 @@ document.getElementById("img1").onload = () => {
     intensityHistogramMax = Math.max(...Object.values(intensityHistogram));
     holeHistogram = computeHoleHistogram();
     holeHistogramMax = Math.max(...Object.values(holeHistogram));
-
+    axisTransformationPieces = computePiecewiseLinearAxisTransformationPieces(CYCLES_BY_RESOLUTION[RESOLUTIONS[currentResolutionIndex]], intensityHistogram);
+    updateThreshold();
     requestAnimationFrame(animate);
 }
-axisTransformationPieces = [
-    [[0, 0.05], [0, 0.10]],
-    [[0.05, 0.2], [0.10, 0.105]],
-    [[0.2, 0.3], [0.105, 0.36]],
-    [[0.3, 0.5], [0.36, 0.55]],
-    [[0.5, 0.65], [0.55, 0.57]],
-    [[0.65, 0.95], [0.57, 0.99]],
-    [[0.95, 1.001], [0.99, 1.001]]
-];
+axisTransformationPieces = null;
+//  [
+//     [[0, 0.05], [0, 0.10]],
+//     [[0.05, 0.2], [0.10, 0.105]],
+//     [[0.2, 0.3], [0.105, 0.36]],
+//     [[0.3, 0.5], [0.36, 0.55]],
+//     [[0.5, 0.65], [0.55, 0.57]],
+//     [[0.65, 0.95], [0.57, 0.99]],
+//     [[0.95, 1.001], [0.99, 1.001]]
+// ];
 let currentX = 1.0;
 let canvas;
 let thresholdSlider;
@@ -84,6 +86,16 @@ let holeHistogramMax;
 //     threshold = Math.max(0, Math.min(255, t*255));
 //     requestAnimationFrame(animate);
 // });
+function updateThreshold() {
+    if (!axisTransformationPieces || !thresholdSlider) {
+        setTimeout(updateThreshold, 100);
+        return;
+    }
+    let t = piecewiseLinearFunction(thresholdSlider.value, axisTransformationPieces)
+    threshold = Math.max(0, Math.min(255, t*255));
+    requestAnimationFrame(animate);
+}
+
 document.addEventListener("DOMContentLoaded", ()  => {
     canvas = document.getElementById("canvas1");
     canvas.onclick = () => {
@@ -100,14 +112,9 @@ document.addEventListener("DOMContentLoaded", ()  => {
         setTimeout(f, 3100);
     };
     thresholdSlider = document.getElementById("threshold");
-    updateThreshold = () => {
-        let t = piecewiseLinearFunction(thresholdSlider.value, axisTransformationPieces)
-        threshold = Math.max(0, Math.min(255, t*255));
-        requestAnimationFrame(animate);
-    }
+
     thresholdSlider.oninput = updateThreshold;
     thresholdSlider.value = 0.5;
-    updateThreshold();
     document.getElementById("rgb").onchange = document.getElementById("grayscale").onchange = document.getElementById("binary").onchange = (e) => {
         binarizationType = e.originalTarget.value;
         requestAnimationFrame(animate);
@@ -127,8 +134,90 @@ document.addEventListener("DOMContentLoaded", ()  => {
     resolutionMinusButton.onclick = () => changeResolution(Math.max(currentResolutionIndex-1, 0));
     resolutionPlusButton.onclick = () => changeResolution(Math.min(currentResolutionIndex+1, RESOLUTIONS.length - 1));
 
-    requestAnimationFrame(animate);
+    // requestAnimationFrame(animate);
 });
+
+function computePiecewiseLinearAxisTransformationPieces(cycles, intensityHistogram) {
+    let piecesY = [[0, 255]];
+    let newPiecesY = piecesY;
+    let isBetween = (x, a, b) => x >= a && x < b;
+    let median = (l) => {
+        l.sort((a,b) => a-b);
+        return l.length % 2 == 0 ? (l[l.length / 2] + l[l.length / 2 + 1]) / 2 : l[(l.length-1)/2];
+    }
+    let turns = 0;
+    do {
+        piecesY = newPiecesY;
+        newPiecesY = [];
+        for (let piece of piecesY) {
+            let [piece_y_from, piece_y_to] = piece;
+            if (piece_y_to - piece_y_from > 1) {
+                let cyclesBorn = cycles.filter(c => isBetween(c.birth, piece_y_from, piece_y_to));
+                if (cyclesBorn.length >= 2) {
+                    let medianBirth = median(cyclesBorn.map(c => c.birth));
+                    if (medianBirth > piece_y_from && medianBirth < piece_y_to) {
+                        newPiecesY.push([piece_y_from, medianBirth]);
+                        newPiecesY.push([medianBirth, piece_y_to]);
+                        continue;
+                    }
+                }
+                let cyclesDying = cycles.filter(c => isBetween(c.death, piece_y_from, piece_y_to));
+                if (cyclesDying.length >= 4) {
+                    let medianDeath = median(cyclesDying.map(c => c.death));
+                    if (medianDeath > piece_y_from && medianDeath < piece_y_to) {
+                        newPiecesY.push([piece_y_from, medianDeath]);
+                        newPiecesY.push([medianDeath, piece_y_to]);
+                        continue;
+                    }
+                }
+                let histogramChange = 0;
+                for (let i = Math.floor(piece_y_from); i < piece_y_to; i++) {
+                    histogramChange += intensityHistogram[i];
+                }
+                if (histogramChange > 50) {
+                    let medianHistogramArgument = null;
+                    let _histogramChange = 0;
+                    for (let i = Math.floor(piece_y_from); i < piece_y_to; i++) {
+                        _histogramChange += intensityHistogram[i];
+                        if (_histogramChange >= histogramChange / 2) {
+                            medianHistogramArgument = i;
+                            break;
+                        }
+                    }
+                    if (medianHistogramArgument > piece_y_from && medianHistogramArgument < piece_y_to) {
+                        newPiecesY.push([piece_y_from, medianHistogramArgument]);
+                        newPiecesY.push([medianHistogramArgument, piece_y_to]);
+                        continue;
+                    }          
+                }
+            }
+            newPiecesY.push(piece);
+        }
+    } while (newPiecesY.length >  piecesY.length && (turns++) < 50);
+    piecesY = newPiecesY;
+    // let weights = piecesY.map(p => (1/(p[1]-p[0])**.2));
+    let weights = piecesY.map(piece => {
+        let [piece_y_from, piece_y_to] = piece;
+        let cyclesBorn = cycles.filter(c => isBetween(c.birth, piece_y_from, piece_y_to));
+        let cyclesDying = cycles.filter(c => isBetween(c.death, piece_y_from, piece_y_to));
+        let histogramChange = 0;
+        for (let i = Math.floor(piece_y_from); i < piece_y_to; i++) {
+            histogramChange += intensityHistogram[i];
+        }
+        let numPixels = IMAGE_SIZE_BY_RESOLUTION[RESOLUTIONS[currentResolutionIndex]][0] * IMAGE_SIZE_BY_RESOLUTION[RESOLUTIONS[currentResolutionIndex]][1];
+        return .05 + 5 * cyclesBorn.length ** .3 + cyclesDying.length ** .6 / 2 + ((histogramChange / numPixels) * 1e4) ** .6 / 10;
+    });
+    console.log(weights);
+    let sumWeights = weights.reduce((a,b) => a+b);
+    let finalPieces = [];
+    let lastX = 0;
+    for (let i = 0; i < piecesY.length; i++) {
+        finalPieces.push([[lastX, lastX+weights[i]/sumWeights], [piecesY[i][0]/255, piecesY[i][1]/255]]);
+        lastX = finalPieces[finalPieces.length-1][0][1];
+    }
+    finalPieces[finalPieces.length-1][0][1] = 1.001;
+    return finalPieces;
+}
 
 function piecewiseLinearFunction(x, pieces) {
     for (let [[piece_x_from, piece_x_to], [piece_y_from, piece_y_to]] of pieces) {
@@ -158,7 +247,7 @@ function drawFilteredImage(canvas, threshold) {
     for (i = 0; i < imgData.data.length; i+=4) {
         let [r, g, b] = [imgData.data[i], imgData.data[i+1], imgData.data[i+2]];
         // let intensity = (0.2126*r + 0.7152*g + 0.0722*b >= threshold) ? 255 : 0;
-        let intensity = Math.round((r + g + b) / 3);
+        let intensity = Math.floor((r + g + b) / 3);
         if (intensity > threshold) {
             let [x, y] = [(i / 4) % canvas.width, i / 4 / canvas.width]
             imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = ((x % 20 < 10) == (y % 20 < 10) ? 220 : 240);
@@ -183,7 +272,7 @@ function computeIntensityHistogram() {
     for (i = 0; i < imgData.data.length; i+=4) {
         let [r, g, b] = [imgData.data[i], imgData.data[i+1], imgData.data[i+2]];
         // let intensity = (0.2126*r + 0.7152*g + 0.0722*b >= threshold) ? 255 : 0;
-        let intensity = Math.round((r + g + b) / 3);
+        let intensity = Math.floor((r + g + b) / 3);
         intensityHistogram[intensity]++;
     }
     return intensityHistogram;
