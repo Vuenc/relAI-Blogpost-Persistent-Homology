@@ -148,11 +148,11 @@ document.addEventListener("DOMContentLoaded", ()  => {
     //     setTimeout(f, 4000);
     // };
     document.getElementById("rgb").onchange = document.getElementById("binary").onchange = e => {
-        binarizationType = e.originalTarget.value;
+        binarizationType = e.target.value;
         requestAnimationFrame(animate);
     }
     document.getElementById("alive-and-dead-cycles").onchange = document.getElementById("alive-cycles").onchange = document.getElementById("no-cycles").onchange = e => {
-        cyclesDisplayType = e.originalTarget.value;
+        cyclesDisplayType = e.target.value;
         requestAnimationFrame(animate);
     }
     canvas.onmousedown = e => {
