@@ -33,11 +33,11 @@
                 </span>
                 <span style="width: auto; align-items: center; display: flex; flex-direction: row;">
                     <div class="resolutionButton" id="resolutionMinus" style="width: 15px; height: 15px; padding: 12.5px 12.5px 12.5px 12.5px; display: flex;">
-                        <svg viewBox="0 0 34 8.2" xmlns="http://www.w3.org/2000/svg"><g id="svgGroup" stroke-linecap="round" fill-rule="evenodd" font-size="9pt" stroke="#000" stroke-width="0.25mm" fill="#000" style="stroke:#000;stroke-width:0.25mm;fill:#000"><path d="M 34 8.2 L 0 8.2 L 0 0 L 34 0 L 34 8.2 Z" vector-effect="non-scaling-stroke"/></g></svg>
+                        <svg viewBox="0 0 34 8.2" xmlns="http://www.w3.org/2000/svg"><g id="svgGroup" stroke-linecap="round" fill-rule="evenodd" font-size="9pt" stroke-width="0.25mm" style="stroke-width:0.25mm;"><path d="M 34 8.2 L 0 8.2 L 0 0 L 34 0 L 34 8.2 Z" vector-effect="non-scaling-stroke"/></g></svg>
                     </div>
                     <div id="resolutionLabel" style="padding-left: 13px; padding-right: 13px; min-width: 105px; text-align: center">200×88px</div>
                     <div class="resolutionButton" id="resolutionPlus"  style="width: 15px; height: 15px; padding: 12.5px 12.5px 12.5px 12.5px; display: flex">
-                        <svg viewBox="0 0 39 40.4" xmlns="http://www.w3.org/2000/svg"><g id="svgGroup" stroke-linecap="round" fill-rule="evenodd" font-size="9pt" stroke="#000" stroke-width="0.25mm" fill="#000" style="stroke:#000;stroke-width:0.25mm;fill:#000"><path d="M 23.8 40.4 L 15.3 40.4 L 15.3 24.1 L 0 24.1 L 0 16.3 L 15.3 16.3 L 15.3 0 L 23.8 0 L 23.8 16.3 L 39 16.3 L 39 24.1 L 23.8 24.1 L 23.8 40.4 Z" vector-effect="non-scaling-stroke"/></g></svg>
+                        <svg viewBox="0 0 39 40.4" xmlns="http://www.w3.org/2000/svg"><g id="svgGroup" stroke-linecap="round" fill-rule="evenodd" font-size="9pt" stroke-width="0.25mm" style="stroke-width:0.25mm;"><path d="M 23.8 40.4 L 15.3 40.4 L 15.3 24.1 L 0 24.1 L 0 16.3 L 15.3 16.3 L 15.3 0 L 23.8 0 L 23.8 16.3 L 39 16.3 L 39 24.1 L 23.8 24.1 L 23.8 40.4 Z" vector-effect="non-scaling-stroke"/></g></svg>
                     </div>
                 </span>
             </div>
@@ -67,8 +67,13 @@
     .resolutionButton[disabled="true"] {
         border-color: #dddddd;
     }
+    .resolutionButton svg {
+        fill: #000000;
+        stroke: #000000;
+    }
     .resolutionButton[disabled="true"] svg {
         fill: #aaaaaa;
+        stroke: #aaaaaa;
     }
 </style>
 <script>
