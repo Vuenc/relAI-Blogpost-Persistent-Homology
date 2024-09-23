@@ -439,7 +439,7 @@ function animate() {
     ctx.font = "bold 18px Arial";
     ctx.textAlign = histogramScaleX * x < 650 ? "left" : "right";
     ctx.fillStyle = "#000000";
-    ctx.fillText("  Threshold: " + Math.floor(threshold) + "  ", histogramScaleX * x, CANVAS_HEIGHT - HISTOGRAM_AREA_HEIGHT - 33);
+    ctx.fillText("  Threshold: " + (Math.floor((threshold / 255) * 100) / 100).toFixed(2) + "  ", histogramScaleX * x, CANVAS_HEIGHT - HISTOGRAM_AREA_HEIGHT - 33);
     ctx.fillStyle = "#FF0000";
     ctx.fillText("  #Holes: " + numHoles + "  ", histogramScaleX * x, CANVAS_HEIGHT - HISTOGRAM_AREA_HEIGHT - 13);
 }
