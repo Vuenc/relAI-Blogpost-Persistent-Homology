@@ -118,15 +118,6 @@ document.getElementById("img1").onload = () => {
     requestAnimationFrame(animate);
 }
 axisTransformationPieces = null;
-//  [
-//     [[0, 0.05], [0, 0.10]],
-//     [[0.05, 0.2], [0.10, 0.105]],
-//     [[0.2, 0.3], [0.105, 0.36]],
-//     [[0.3, 0.5], [0.36, 0.55]],
-//     [[0.5, 0.65], [0.55, 0.57]],
-//     [[0.65, 0.95], [0.57, 0.99]],
-//     [[0.95, 1.001], [0.99, 1.001]]
-// ];
 let currentX = 1.0;
 let canvas;
 let sliderValue = 0.5;
@@ -221,9 +212,6 @@ document.addEventListener("DOMContentLoaded", ()  => {
     }
     resolutionMinusButton.onclick = () => changeResolution(Math.max(currentResolutionIndex-1, 0));
     resolutionPlusButton.onclick = () => changeResolution(Math.min(currentResolutionIndex+1, RESOLUTIONS.length - 1));
-
-
-    // requestAnimationFrame(animate);
 });
 
 function computePiecewiseLinearAxisTransformationPieces(cycles, intensityHistogram) {
@@ -330,7 +318,6 @@ function drawFilteredImage(canvas, threshold) {
     let img = document.getElementById("img1");
     ctx.drawImage(img, 0, 0);
     let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    // threshold
     let i;
     let _binarizationType = {"Color": 0, "Grayscale": 1, "Binary": 2}[binarizationType]; 
     for (i = 0; i < imgData.data.length; i+=4) {
@@ -387,7 +374,6 @@ function animate() {
     ctx.scale(DRAW_SCALE_BY_RESOLUTION[RESOLUTIONS[currentResolutionIndex]], DRAW_SCALE_BY_RESOLUTION[RESOLUTIONS[currentResolutionIndex]]);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(imageCanvas, 0, 0);
-    // ctx.scale(0.25, 0.25);
     let numHoles = 0;
     let cycles = CYCLES_BY_RESOLUTION[RESOLUTIONS[currentResolutionIndex]];
     for (let isAlive of [false, true]) {
