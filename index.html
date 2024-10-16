@@ -1,8 +1,8 @@
-
-<div style="display: flex; height: 100vh; width: 100vw; justify-content: center; touch-action: pinch-zoom; font-size: 20px;">
-    <div style="display: flex; flex-direction:column; margin: auto">
+<body>
+<div style="display: flex; height: 100%; width: 100%; justify-content: center; touch-action: pinch-zoom; font-size: 20px;">
+    <div id="ui-div" style="display: flex; margin: auto; width: 97%;">
         <canvas id="canvas1" style="touch-action: pinch-zoom;" width="800px" height="465px"></canvas>
-        <div style="display: flex; flex-direction: column; margin-top:20px">
+        <div id="button-panel" style="display: flex; flex-direction: column;">
             <div style="width: auto; align-items: top; display: flex; flex-direction: row; justify-content:space-between;">
                 <span style="width: auto; align-items: top; display: flex; flex-direction: row">
                     <input type="radio" autocomplete="off" checked="true" style="display:none" id="rgb" name="Binarization" value="Color">
@@ -46,7 +46,28 @@
 </div>
 <canvas id="canvas2" width="200px" height="88px" style="display: none"></canvas>
 <img id="img1" style="display: none"/>
+</body>
 <style>
+    body {
+        margin: 0;
+    }
+    @media (min-width:768px)  {
+        #ui-div {
+            flex-direction: column-reverse;
+        }
+        #button-panel {
+            margin-bottom: 20px;
+        }
+    }
+    @media (min-width:1024px)  {
+        #ui-div {
+            flex-direction: column;
+            max-width: 800px;
+        }
+        #button-panel {
+            margin-top: 20px;
+        }
+    }
     input[type="radio"] + label img  {
         border: 1px solid #aaaaaa;
         border-radius: 2px;
